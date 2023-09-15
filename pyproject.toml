@@ -21,3 +21,6 @@ dev-dependencies = [
 
 [tool.hatch.metadata]
 allow-direct-references = true
+
+[project.scripts]
+pyplos = 'pyplos.__main__:cli'
