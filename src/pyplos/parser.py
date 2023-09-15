@@ -26,7 +26,11 @@ class Tape:
         if type is not None:
             assert isinstance(token, type)
 
-        if value is not None:
+        if isinstance(value, list):
+            candidates = [val for val in value if token.value == val]
+            assert candidates, f"{token.value!r} not in {value!r}"
+
+        elif value is not None:
             assert token.value == value, f"{token.value!r} != {value!r}"
 
         self.index += 1
@@ -95,6 +99,28 @@ def parse_value(tape):
     return tape.next(type=(token.Name, token.Identifier, token.Number, token.String))
 
 
+def parse_sort(tape):
+    # sort + gender, - age
+    columns = []
+
+    order = tape.next_if(value=["+", "-"])
+    if order is not None:
+        order = order.value
+    field = parse_identifier(tape).name
+    columns.append((field, order))
+
+    while tape.next_if(value=","):
+        order = tape.next_if(value=["+", "-"])
+        if order is not None:
+            order = order.value
+
+        field = parse_identifier(tape).name
+
+        columns.append((field, order))
+
+    return ast.Sort(columns)
+
+
 def parse_command(tape):
     commands = {
         "search": parse_search,
@@ -102,6 +128,7 @@ def parse_command(tape):
         "fields": parse_fields,
         "head": parse_head,
         "stats": parse_stats,
+        "sort": parse_sort,
     }
 
     name = tape.next(type=token.Name).name

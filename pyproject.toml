@@ -17,6 +17,7 @@ build-backend = "hatchling.build"
 managed = true
 dev-dependencies = [
     "ruff>=0.0.289",
+    "pytest>=7.4.2",
 ]
 
 [tool.hatch.metadata]

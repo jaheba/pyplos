@@ -3,7 +3,7 @@ from __future__ import annotations
 import operator
 from collections import defaultdict
 from dataclasses import dataclass
-from functools import partial
+from functools import partial, cmp_to_key
 from typing import Optional
 
 from . import token
@@ -70,6 +70,39 @@ class Stats(Command):
         ]
 
 
+def multi_compare(columns):
+    def compare(xs, ys):
+        for column, order in columns:
+            x = xs[column]
+            y = ys[column]
+
+            if x == y:
+                continue
+
+            if x < y:
+                if order == "-":
+                    return 1
+                return -1
+            else:
+                if order == "-":
+                    return -1
+                return 1
+
+        return 0
+
+    return compare
+
+
+@dataclass
+class Sort(Command):
+    columns: list
+
+    def execute(self, table):
+        table = sorted(table, key=cmp_to_key(multi_compare(self.columns)))
+
+        return table
+
+
 class BoolExpr:
     pass
 
@@ -102,7 +135,7 @@ class And(BoolExpr):
     right: BoolExpr
 
     def eval(self, row):
-        return self.left.eval() and self.right.eval()
+        return self.left.eval(row) and self.right.eval(row)
 
 
 @dataclass
