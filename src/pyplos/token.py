@@ -8,7 +8,7 @@ from .util import first, valfilter
 
 
 def one_of(*xs):
-    return "[%s]" % "".join(map(re.escape, xs))
+    return "(?:%s)" % "|".join(map(re.escape, xs))
 
 
 @dataclass
@@ -105,7 +105,7 @@ class Space(Token):
 
 
 class Operator(Token):
-    rx = one_of("+", "-", "*", "/", ">=", "<=", "=", ">", "<", ",")
+    rx = one_of("+", "-", "*", "/", ">=", "<=", "!=", "=", ">", "<", ",")
 
 
 class End(Token):
